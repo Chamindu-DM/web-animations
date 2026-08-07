@@ -37,8 +37,11 @@ export default function FeaturesSection() {
       ref={containerRef}
       className="relative w-full mx-auto bg-[#7c54c4] pt-20 pb-32 flex flex-col items-center justify-center gap-40 overflow-hidden"
     >
-      {/* Background Animated SVG Line positioned at z-0 */}
-      <Line containerRef={containerRef} />
+      {/* The Line Container */}
+  {/* Add padding-top here to push the SVG down so the path starts below the H1 */}
+  <div className="absolute inset-0 pointer-events-none z-0"> 
+    <Line containerRef={containerRef} />
+  </div>
 
       {/* Main Header - z-40 on top of the drawing line */}
       <div className="relative z-40 w-full px-8 flex justify-center">
