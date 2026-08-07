@@ -43,7 +43,7 @@ export default function FeaturesSection() {
       </div>
 
       {/* Main Header - z-40 on top of the drawing line */}
-      <div className="relative z-40 w-full px-2 md:px-8 flex justify-center">
+      <div className="relative z-40 w-full px-2 md:px-8 bg-[#7c54c4] flex justify-center">
         <h1 className="font-luckiest text-white text-center uppercase text-4xl md:text-7xl lg:text-[88px] leading-tight max-w-[1200px] tracking-wide drop-shadow-md">
           From visitors to booked jobs in minutes
         </h1>
@@ -53,19 +53,19 @@ export default function FeaturesSection() {
       <div className="relative z-40 flex flex-col gap-16 md:gap-40 w-full items-center">
         {cardData.map((item, index) => (
           <div key={index} className="w-full flex justify-center">
-            {/* Mobile Layout (< md): Single Card with Image Clipped at Bottom */}
-            <div className="flex md:hidden w-full max-w-[340px] h-[520px] pt-8 px-6 pb-0 -rotate-1 bg-[#262322] rounded-[36px] flex-col justify-between items-center overflow-hidden shadow-2xl">
+            {/* Mobile & 768px Tablet Layout (< lg): Single Card with Image Clipped at Bottom */}
+            <div className="flex lg:hidden w-full max-w-[340px] sm:max-w-[420px] h-[520px] sm:h-[560px] pt-8 px-6 pb-0 -rotate-1 bg-[#262322] rounded-[36px] flex-col justify-between items-center overflow-hidden shadow-2xl">
               <div className="flex flex-col gap-4 self-stretch">
-                <h2 className="font-gothic text-white text-5xl uppercase leading-[0.95] tracking-wide">
+                <h2 className="font-gothic text-white text-5xl sm:text-6xl uppercase leading-[0.95] tracking-wide">
                   {item.title}
                 </h2>
-                <p className="font-instrument text-white/90 text-sm leading-relaxed">
+                <p className="font-instrument text-white/90 text-sm sm:text-base leading-relaxed">
                   {item.description}
                 </p>
               </div>
 
               {/* Image Mockup clipped cleanly by parent card bottom */}
-              <div className="w-[85%] max-w-[240px] mt-4 rounded-t-[24px] overflow-hidden bg-white shadow-2xl flex-shrink-0">
+              <div className="w-[85%] max-w-[240px] sm:max-w-[280px] mt-4 rounded-t-[24px] overflow-hidden bg-white shadow-2xl flex-shrink-0">
                 <img
                   src={sc}
                   alt="App Screenshot"
@@ -74,10 +74,10 @@ export default function FeaturesSection() {
               </div>
             </div>
 
-            {/* Desktop Layout (>= md): Side-by-Side Cards */}
+            {/* Desktop Side-by-Side Layout (>= lg / 1024px+) */}
             <div
-              className={`hidden md:flex flex-wrap items-center justify-center gap-60 w-full ${
-                item.imageLeft ? "flex-row-reverse" : "flex-row"
+              className={`hidden lg:flex items-center justify-center gap-12 lg:gap-24 xl:gap-60 w-full ${
+                item.imageLeft ? "lg:flex-row-reverse" : "lg:flex-row"
               }`}
             >
               {/* Text Card */}
@@ -106,7 +106,7 @@ export default function FeaturesSection() {
       </div>
 
       {/* Footer Title - z-40 */}
-      <div className="relative z-40 w-full px-4 md:px-8 flex justify-center mt-8 md:mt-16">
+      <div className="relative z-40 w-full px-4 md:px-8 bg-[#7c54c4] flex justify-center mt-8 md:mt-16">
         <h2 className="font-luckiest text-white text-center uppercase text-4xl md:text-7xl lg:text-[80px] leading-tight">
           all in one
           <br />
