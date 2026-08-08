@@ -2,7 +2,6 @@ import React from "react";
 
 // Module-level constants (never recreated on render)
 const BASE_STYLES = [
-  "h-12 px-4 py-2",
   "inline-flex items-center justify-center gap-2",
   "font-inter font-bold text-base text-black uppercase tracking-wide",
   "border-2 border-black",
@@ -28,6 +27,7 @@ export const Button = ({
   showIcon = true,
   icon: Icon,
   iconPosition = 'right',
+  isIconOnly = false,
   disabled = false,
   href,
   className = '',
@@ -40,6 +40,7 @@ export const Button = ({
   // 2. Safe Variant Resolution
   const variantClass = VARIANTS[variant] || VARIANTS.primary;
 
+  const sizeStyles = isIconOnly ? 'w-12 h-12 p-0' : 'h-12 px-4 py-2';
   // 3. Conditional Link Attributes
   const componentProps = href
     ? { href: disabled ? undefined : href, 'aria-disabled': disabled }
@@ -47,19 +48,27 @@ export const Button = ({
 
   return (
     <Component
-      className={`${BASE_STYLES} ${variantClass} ${className}`}
+      className={`${BASE_STYLES} ${sizeStyles} ${variantClass} ${className}`}
       {...componentProps}
       {...props}
     >
-      {showIcon && Icon && iconPosition === 'left' && (
-        <Icon className="w-4 h-4 shrink-0" />
-      )}
+        {isIconOnly ? (
+            Icon ? <Icon className="w-5 h-5 shrink-0"/> : children
+        ) : (
+            <>
+            {showIcon && Icon && iconPosition === 'left' && (
+                <Icon className="w-4 h-4 shrink-0" />
+            )}
+            
+            {children && <span>{children}</span>}
+            
+            {showIcon && Icon && iconPosition === 'right' && (
+                <Icon className="w-4 h-4 shrink-0" />
+            )}
+            </>
+        )}
+
       
-      <span>{children}</span>
-      
-      {showIcon && Icon && iconPosition === 'right' && (
-        <Icon className="w-4 h-4 shrink-0" />
-      )}
     </Component>
   );
 };

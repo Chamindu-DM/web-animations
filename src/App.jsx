@@ -1,7 +1,7 @@
 import FeaturesSection from "./components/FeaturesSection";
 import CardStackSection from "./components/CardStackSection";
 import { Button } from "./components/Button";
-import { ArrowRight, Calendar, Download } from "lucide-react";
+import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 
 export default function App() {
   return (
@@ -25,6 +25,26 @@ export default function App() {
           {/* Without icon */}
           <Button variant="secondary">
             Plain Button
+          </Button>
+        </div>
+        <div className="flex gap-4 p-8">
+          {/* Primary Icon Button */}
+          <Button 
+            variant="primary" 
+            icon={Plus} 
+            isIconOnly 
+            aria-label="Add item" 
+          />
+          {/* Secondary Icon Button */}
+          <Button 
+            variant="secondary" 
+            icon={Trash2} 
+            isIconOnly 
+            aria-label="Delete item" 
+          />
+          {/* Passing Icon as children */}
+          <Button variant="primary" isIconOnly aria-label="Next">
+            <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
       </div>
