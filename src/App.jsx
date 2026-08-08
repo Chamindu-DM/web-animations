@@ -1,11 +1,13 @@
 import FeaturesSection from "./components/FeaturesSection";
 import CardStackSection from "./components/CardStackSection";
+import Navbar from "./components/Navbar";
 import { Button } from "./components/Button";
 import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 
 export default function App() {
   return (
-    <main className="bg-white min-h-screen overflow-clip">
+    <main className="bg-white min-h-screen">
+      <Navbar/>
       {/* Intro hero section */}
       <div className="h-[60vh] grid place-items-center text-black">
         <h1 className="font-luckiest text-4xl md:text-5xl">Scroll down for start animation</h1>
