@@ -13,13 +13,21 @@ export default function DeviceScrollAnimation() {
   
   const iphoneGroupRef = useRef(null);
   const ipadGroupRef = useRef(null);
-
-  const deviceContainerRef = useRef(null);
-  const innerDeviceRef = useRef(null);
+  const tabletImageRef = useRef(null);
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
       
+      // Initialize the tablet group to be rotated (portrait view) and scaled down
+      // Its natural size is landscape (78vh x 60vh).
+      // Rotated -90, it stands 78vh tall.
+      // To match the 60vh height of the phone, we scale it by 60/78 = ~0.77.
+      gsap.set(ipadGroupRef.current, { rotation: -90, scale: 0.77 });
+
+      // Initialize the tablet screen image rotated so it looks upright to the user,
+      // and scaled up so it covers the corners of its landscape container while rotated.
+      gsap.set(tabletImageRef.current, { rotation: 90, scale: 1.35 });
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -34,24 +42,19 @@ export default function DeviceScrollAnimation() {
       // Phase 1: Morph to Tablet Portrait
       // Happens when scrolling from section 1 to section 2 (around 0.2 to 0.4 progress)
       tl.to(iphoneGroupRef.current, { opacity: 0, duration: 0.2 }, 0.2)
-        .to(ipadGroupRef.current, { opacity: 1, duration: 0.2 }, 0.2)
-        .to(deviceContainerRef.current, { 
-          width: "45vh", // Tablet portrait width
-          height: "60vh", // Tablet portrait height
-          duration: 0.2,
-          ease: "power2.inOut"
-        }, 0.2);
+        .to(ipadGroupRef.current, { opacity: 1, duration: 0.2 }, 0.2);
 
       // Phase 2: Rotate to Tablet Landscape
       // Happens when scrolling from section 2 to section 3 (around 0.6 to 0.8 progress)
-      tl.to(innerDeviceRef.current, {
+      tl.to(ipadGroupRef.current, {
         rotation: 0, // Rotate back to landscape
+        scale: 1,    // Scale to full landscape size
         duration: 0.2,
         ease: "power2.inOut"
       }, 0.6)
-      .to(deviceContainerRef.current, {
-        width: "70vh", // Tablet landscape width
-        height: "50vh", // Tablet landscape height
+      .to(tabletImageRef.current, {
+        rotation: 0, // Rotate image back to normal
+        scale: 1,    // Reset scale
         duration: 0.2,
         ease: "power2.inOut"
       }, 0.6);
@@ -61,7 +64,23 @@ export default function DeviceScrollAnimation() {
 
     }, containerRef);
 
-    return () => ctx.revert();
+    // In production builds, images loading in sections above this one can cause layout shifts
+    // AFTER ScrollTrigger has calculated the start/end positions. 
+    // We refresh ScrollTrigger slightly after mount to recalculate correct positions.
+    const timer1 = setTimeout(() => ScrollTrigger.refresh(), 100);
+    const timer2 = setTimeout(() => ScrollTrigger.refresh(), 500);
+    const timer3 = setTimeout(() => ScrollTrigger.refresh(), 1500);
+    
+    const handleLoad = () => ScrollTrigger.refresh();
+    window.addEventListener('load', handleLoad);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      window.removeEventListener('load', handleLoad);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -69,38 +88,30 @@ export default function DeviceScrollAnimation() {
       <div className="max-w-7xl mx-auto flex items-start">
         
         {/* Left Column - Sticky Device */}
-        {/* Using native sticky is much smoother than JS pinning */}
         <div className="w-1/2 h-screen sticky top-0 flex items-center justify-center">
           
-          <div 
-            ref={deviceContainerRef} 
-            className="relative flex items-center justify-center"
-            style={{ width: "30vh", height: "60vh" }}
-          >
-            {/* The inner rotation handler. Initially rotated -90deg so landscape iPad looks portrait */}
-            <div ref={innerDeviceRef} className="absolute inset-0 flex items-center justify-center w-full h-full -rotate-90">
+          <div className="relative flex items-center justify-center w-full h-full">
                 
                 {/* Mobile Group */}
-                <div ref={iphoneGroupRef} className="absolute inset-0 w-full h-full rotate-90 z-20 flex items-center justify-center">
+                <div ref={iphoneGroupRef} className="absolute z-20 flex items-center justify-center" style={{ width: "30vh", height: "60vh" }}>
                    <img src={mobileFrame} alt="Mobile Frame" className="absolute w-full h-full object-contain pointer-events-none z-10" />
                    {/* Mobile Screen Content */}
-                   <div className="absolute z-0 overflow-hidden" style={{ top: "4%", bottom: "4%", left: "6%", right: "6%", borderRadius: "10%" }}>
+                   <div className="absolute z-0 overflow-hidden" style={{ top: "3%", bottom: "3%", left: "6%", right: "6%", borderRadius: "10%" }}>
                      <img src={slideMobile} alt="Mobile App" className="w-full h-full object-cover" />
                    </div>
                 </div>
 
                 {/* Tablet Group */}
-                <div ref={ipadGroupRef} className="absolute inset-0 w-full h-full z-10 opacity-0 flex items-center justify-center">
+                {/* Landscape dimensions (78vh x 60vh) */}
+                <div ref={ipadGroupRef} className="absolute z-10 opacity-0 flex items-center justify-center" style={{ width: "78vh", height: "60vh" }}>
                    <img src={tabletFrame} alt="Tablet Frame" className="absolute w-full h-full object-contain pointer-events-none z-10" />
                    {/* Tablet Screen Content */}
-                   <div className="absolute z-0 overflow-hidden" style={{ top: "4%", bottom: "4%", left: "4%", right: "4%", borderRadius: "3%" }}>
-                     <img src={slideTablet} alt="Tablet App" className="w-full h-full object-cover" />
+                   <div className="absolute z-0 overflow-hidden" style={{ top: "4%", bottom: "4%", left: "3.5%", right: "3.5%", borderRadius: "3%" }}>
+                     <img ref={tabletImageRef} src={slideTablet} alt="Tablet App" className="w-full h-full object-cover" />
                    </div>
                 </div>
 
-            </div>
           </div>
-
         </div>
 
         {/* Right Column - Scrolling Text */}
