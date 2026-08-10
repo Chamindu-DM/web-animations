@@ -1,12 +1,10 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import mobileFrame from '../assets/iPhone 16 Pro.png';
 import tabletFrame from '../assets/iPad Pro M4 13_.png';
 import slideMobile from '../assets/slide-3.png';
 import slideTablet from '../assets/slide-9.png';
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function DeviceScrollAnimation() {
   const containerRef = useRef(null);
@@ -15,71 +13,59 @@ export default function DeviceScrollAnimation() {
   const ipadGroupRef = useRef(null);
   const tabletImageRef = useRef(null);
 
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      
-      // Initialize the tablet group to be rotated (portrait view) and scaled down
-      // Its natural size is landscape (78vh x 60vh).
-      // Rotated -90, it stands 78vh tall.
-      // To match the 60vh height of the phone, we scale it by 60/78 = ~0.77.
-      gsap.set(ipadGroupRef.current, { rotation: -90, scale: 0.77 });
+  useEffect(() => {
+    // Register plugin inside the effect to ensure it's bound to the correct GSAP instance in production
+    gsap.registerPlugin(ScrollTrigger);
+    
+    let ctx;
+    
+    const timer = setTimeout(() => {
+      ctx = gsap.context(() => {
+        
+        gsap.set(ipadGroupRef.current, { rotation: -90, scale: 0.77 });
+        gsap.set(tabletImageRef.current, { rotation: 90, scale: 1.35 });
 
-      // Initialize the tablet screen image rotated so it looks upright to the user,
-      // and scaled up so it covers the corners of its landscape container while rotated.
-      gsap.set(tabletImageRef.current, { rotation: 90, scale: 1.35 });
+        // Start timeline paused. ScrollTrigger will take control of it.
+        const tl = gsap.timeline({ paused: true });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
+        tl.to(iphoneGroupRef.current, { opacity: 0, duration: 0.2 }, 0.2)
+          .to(ipadGroupRef.current, { opacity: 1, duration: 0.2 }, 0.2);
+
+        tl.to(ipadGroupRef.current, {
+          rotation: 0, 
+          scale: 1,    
+          duration: 0.2,
+          ease: "power2.inOut"
+        }, 0.6)
+        .to(tabletImageRef.current, {
+          rotation: 0, 
+          scale: 1,    
+          duration: 0.2,
+          ease: "power2.inOut"
+        }, 0.6);
+
+        tl.to({}, { duration: 0.2 }, 0.8);
+
+        // Explicitly create the ScrollTrigger independently of the timeline config
+        ScrollTrigger.create({
+          animation: tl,
           trigger: containerRef.current,
           start: "top top",
-          end: "bottom bottom",
-          scrub: 1, // Smooth scrub
-        }
-      });
+          // Use Math.max to guarantee at least 1500px of scroll distance even if offsetHeight is evaluated as 0 initially
+          end: () => `+=${Math.max(1500, containerRef.current.offsetHeight - window.innerHeight)}`,
+          scrub: 1, 
+          invalidateOnRefresh: true,
+        });
 
-      // Total timeline duration is logically 1.0 (from 0 to 1)
+      }, containerRef);
       
-      // Phase 1: Morph to Tablet Portrait
-      // Happens when scrolling from section 1 to section 2 (around 0.2 to 0.4 progress)
-      tl.to(iphoneGroupRef.current, { opacity: 0, duration: 0.2 }, 0.2)
-        .to(ipadGroupRef.current, { opacity: 1, duration: 0.2 }, 0.2);
-
-      // Phase 2: Rotate to Tablet Landscape
-      // Happens when scrolling from section 2 to section 3 (around 0.6 to 0.8 progress)
-      tl.to(ipadGroupRef.current, {
-        rotation: 0, // Rotate back to landscape
-        scale: 1,    // Scale to full landscape size
-        duration: 0.2,
-        ease: "power2.inOut"
-      }, 0.6)
-      .to(tabletImageRef.current, {
-        rotation: 0, // Rotate image back to normal
-        scale: 1,    // Reset scale
-        duration: 0.2,
-        ease: "power2.inOut"
-      }, 0.6);
-
-      // Add a dummy tween to pad the end of the timeline out to 1.0
-      tl.to({}, { duration: 0.2 }, 0.8);
-
-    }, containerRef);
-
-    // In production builds, images loading in sections above this one can cause layout shifts
-    // AFTER ScrollTrigger has calculated the start/end positions. 
-    // We refresh ScrollTrigger slightly after mount to recalculate correct positions.
-    const timer1 = setTimeout(() => ScrollTrigger.refresh(), 100);
-    const timer2 = setTimeout(() => ScrollTrigger.refresh(), 500);
-    const timer3 = setTimeout(() => ScrollTrigger.refresh(), 1500);
-    
-    const handleLoad = () => ScrollTrigger.refresh();
-    window.addEventListener('load', handleLoad);
+      ScrollTrigger.refresh();
+      
+    }, 250);
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-      window.removeEventListener('load', handleLoad);
-      ctx.revert();
+      clearTimeout(timer);
+      if (ctx) ctx.revert();
     };
   }, []);
 
