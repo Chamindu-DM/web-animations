@@ -1,6 +1,7 @@
 import FeaturesSection from "./components/FeaturesSection";
 import CardStackSection from "./components/CardStackSection";
 import Navbar from "./components/Navbar";
+import ContactSection from "./components/ContactSection";
 import { Button } from "./components/Button";
 import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 
@@ -56,6 +57,9 @@ export default function App() {
 
       {/* GSAP Exact Card Stacking Section */}
       <CardStackSection />
+
+      {/* Contact Form Section */}
+      <ContactSection />
 
       {/* Footer section */}
       <div className="h-[60vh] grid place-items-center bg-slate-950 text-white">
