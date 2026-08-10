@@ -10,8 +10,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function DeviceScrollAnimation() {
   const containerRef = useRef(null);
-  const leftColRef = useRef(null);
-  const rightColRef = useRef(null);
   
   const iphoneGroupRef = useRef(null);
   const ipadGroupRef = useRef(null);
@@ -22,16 +20,6 @@ export default function DeviceScrollAnimation() {
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
       
-      // Pin the left column
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        pin: leftColRef.current,
-        pinSpacing: false, // Right column will scroll normally
-      });
-
-      // We will create a timeline tied to the whole container's scroll progress
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -41,30 +29,35 @@ export default function DeviceScrollAnimation() {
         }
       });
 
-      // Initial State is mobile portrait.
-      // innerDeviceRef has -90deg rotation in CSS.
-      // iPhone group has 90deg rotation in CSS to counteract it.
-      // iPad group has 0deg rotation in CSS, so it's rotated -90deg (portrait).
-
-      // Phase 1: Morph to Tablet Portrait (between section 1 and 2)
-      tl.to(iphoneGroupRef.current, { opacity: 0, duration: 1 }, 0.5)
-        .to(ipadGroupRef.current, { opacity: 1, duration: 1 }, 0.5)
+      // Total timeline duration is logically 1.0 (from 0 to 1)
+      
+      // Phase 1: Morph to Tablet Portrait
+      // Happens when scrolling from section 1 to section 2 (around 0.2 to 0.4 progress)
+      tl.to(iphoneGroupRef.current, { opacity: 0, duration: 0.2 }, 0.2)
+        .to(ipadGroupRef.current, { opacity: 1, duration: 0.2 }, 0.2)
         .to(deviceContainerRef.current, { 
           width: "45vh", // Tablet portrait width
           height: "60vh", // Tablet portrait height
-          duration: 1 
-        }, 0.5);
+          duration: 0.2,
+          ease: "power2.inOut"
+        }, 0.2);
 
-      // Phase 2: Rotate to Tablet Landscape (between section 2 and 3)
+      // Phase 2: Rotate to Tablet Landscape
+      // Happens when scrolling from section 2 to section 3 (around 0.6 to 0.8 progress)
       tl.to(innerDeviceRef.current, {
         rotation: 0, // Rotate back to landscape
-        duration: 1
-      }, 2)
+        duration: 0.2,
+        ease: "power2.inOut"
+      }, 0.6)
       .to(deviceContainerRef.current, {
         width: "70vh", // Tablet landscape width
         height: "50vh", // Tablet landscape height
-        duration: 1
-      }, 2);
+        duration: 0.2,
+        ease: "power2.inOut"
+      }, 0.6);
+
+      // Add a dummy tween to pad the end of the timeline out to 1.0
+      tl.to({}, { duration: 0.2 }, 0.8);
 
     }, containerRef);
 
@@ -72,11 +65,12 @@ export default function DeviceScrollAnimation() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full bg-[#0b131e] text-white overflow-hidden">
+    <section ref={containerRef} className="relative w-full bg-[#0b131e] text-white overflow-visible">
       <div className="max-w-7xl mx-auto flex items-start">
         
         {/* Left Column - Sticky Device */}
-        <div ref={leftColRef} className="w-1/2 h-screen flex items-center justify-center">
+        {/* Using native sticky is much smoother than JS pinning */}
+        <div className="w-1/2 h-screen sticky top-0 flex items-center justify-center">
           
           <div 
             ref={deviceContainerRef} 
@@ -110,26 +104,23 @@ export default function DeviceScrollAnimation() {
         </div>
 
         {/* Right Column - Scrolling Text */}
-        <div ref={rightColRef} className="w-1/2 flex flex-col relative z-10">
+        <div className="w-1/2 flex flex-col relative z-10">
             {/* Blank padding at top so first section is centered initially */}
             <div className="h-[25vh]"></div>
             
             <div className="text-section h-screen flex flex-col justify-center pr-12 pl-12">
-               <h2 className="text-xs font-bold text-[#f5a623] uppercase tracking-widest mb-4">User-Friendly</h2>
-               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Our app is designed to be user-friendly,</h3>
-               <p className="text-xl text-gray-300">so you can start creating stunning stable diffusion photos right away.</p>
+               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Fox jump over the water like,</h3>
+               <p className="text-xl text-gray-300">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
             </div>
 
             <div className="text-section h-screen flex flex-col justify-center pr-12 pl-12">
-               <h2 className="text-xs font-bold text-[#f5a623] uppercase tracking-widest mb-4">Tablet Optimized</h2>
-               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Experience on a larger screen</h3>
-               <p className="text-xl text-gray-300">Switch to tablet mode seamlessly with adaptive layouts that give you more room to breathe.</p>
+               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Another fox jump over the water,</h3>
+               <p className="text-xl text-gray-300">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>
             </div>
 
             <div className="text-section h-screen flex flex-col justify-center pr-12 pl-12">
-               <h2 className="text-xs font-bold text-[#00e5ff] uppercase tracking-widest mb-4">Share</h2>
-               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">Share your stable diffusion photos</h3>
-               <p className="text-xl text-gray-300">with just a tap in beautiful landscape view, connecting with the community instantly.</p>
+               <h3 className="text-4xl md:text-5xl font-bold leading-tight mb-6">And another fox jump over the water,</h3>
+               <p className="text-xl text-gray-300">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
             </div>
             
             <div className="h-[25vh]"></div>
