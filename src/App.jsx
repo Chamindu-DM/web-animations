@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import ContactSection from "./components/ContactSection";
 import { Button } from "./components/Button";
 import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
+import DeviceScrollAnimation from "./components/DeviceScrollAnimation";
 
 export default function App() {
   return (
@@ -57,6 +58,9 @@ export default function App() {
 
       {/* GSAP Exact Card Stacking Section */}
       <CardStackSection />
+
+      {/* GSAP Device Scroll Animation */}
+      <DeviceScrollAnimation />
 
       {/* Contact Form Section */}
       <ContactSection />
