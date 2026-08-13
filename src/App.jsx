@@ -5,6 +5,7 @@ import ContactSection from "./components/ContactSection";
 import { Button } from "./components/Button";
 import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 import DeviceScrollAnimation from "./components/DeviceScrollAnimation";
+import ExpertiseSection from "./components/ExpertiseSection";
 
 export default function App() {
   return (
@@ -58,6 +59,9 @@ export default function App() {
 
       {/* GSAP Exact Card Stacking Section */}
       <CardStackSection />
+
+      {/* Expertise Section */}
+      <ExpertiseSection />
 
       {/* GSAP Device Scroll Animation */}
       <DeviceScrollAnimation />

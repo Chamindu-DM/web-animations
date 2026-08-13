@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
 * {
   box-sizing: border-box;
 }
@@ -6,5 +8,5 @@ body {
   margin: 0;
   padding: 0;
   background-color: #111827;
-  font-family: 'Instrument Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
