@@ -58,6 +58,9 @@ export default function App() {
       {/* Main feature section with background drawing line */}
       <FeaturesSection />
 
+      {/* Rotating Globe Section */}
+      <GlobeSection />
+
       {/* GSAP Exact Card Stacking Section */}
       <CardStackSection />
 
@@ -66,9 +69,6 @@ export default function App() {
 
       {/* GSAP Device Scroll Animation */}
       <DeviceScrollAnimation />
-
-      {/* Rotating Globe Section */}
-      <GlobeSection />
 
       {/* Contact Form Section */}
       <ContactSection />
