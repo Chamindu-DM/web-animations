@@ -15,16 +15,18 @@ export default function GlobeSection() {
         const controls = globeRef.current.controls();
         if (controls) {
           controls.autoRotate = true;
-          controls.autoRotateSpeed = 0.8; // Adjust this value to change rotation speed
+          controls.autoRotateSpeed = 0.5; // Adjust this value to change rotation speed
           controls.enableZoom = false; // Prevents users from zooming in/out
         }
 
         // --- HOW TO ADJUST GLOBE SIZE ---
-        // You can change the altitude to make the globe bigger or smaller relative to the screen.
-        // Default is usually around 2.5. 
-        // Increase value (e.g. 3.0) -> Globe gets smaller.
-        // Decrease value (e.g. 1.8) -> Globe gets bigger.
-        globeRef.current.pointOfView({ altitude: 3 }); 
+        // Altitude controls camera distance:
+        // Larger value -> Globe appears smaller.
+        // Smaller value -> Globe appears larger.
+        const isMobile = window.innerWidth < 768;
+        const altitude = isMobile ? 6.5 : 3.0; // Customize mobile vs desktop size here
+
+        globeRef.current.pointOfView({ altitude }); 
       }
     };
     
@@ -42,6 +44,13 @@ export default function GlobeSection() {
           width: containerRef.current.offsetWidth,
           height: containerRef.current.offsetHeight
         });
+
+        // Dynamically adjust altitude on screen resize / orientation change
+        if (globeRef.current) {
+          const isMobile = window.innerWidth < 768;
+          const altitude = isMobile ? 3.8 : 3.0;
+          globeRef.current.pointOfView({ altitude });
+        }
       }
     };
     
@@ -66,7 +75,7 @@ export default function GlobeSection() {
       <div 
         ref={containerRef}
         className="absolute z-0
-                   top-[-50vh] left-0 w-full h-[150vh] 
+                   top-[-40vh] left-0 w-full h-[150vh] 
                    md:top-0 md:left-[-50vw] md:w-[150vw] md:h-full"
       >
         {dimensions.width > 0 && (

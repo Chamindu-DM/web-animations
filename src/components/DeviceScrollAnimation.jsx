@@ -124,7 +124,7 @@ export default function DeviceScrollAnimation() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full bg-[#0b131e] text-white overflow-visible py-12 md:py-0">
+    <section ref={containerRef} className="relative w-full max-w-full bg-[#0b131e] text-white overflow-x-clip py-12 md:py-0">
       
       {/* DESKTOP LAYOUT (Sticky GSAP Scroll Scrub Animation) */}
       <div className="hidden md:flex max-w-7xl mx-auto flex-row items-start">
@@ -253,8 +253,8 @@ export default function DeviceScrollAnimation() {
         </div>
 
         {/* Card 3: iPad Landscape Frame + Text 3 */}
-        <div className="flex flex-col items-center text-center p-6">
-           <div className="relative w-full max-w-[320px] aspect-[1468/1126] flex items-center justify-center mb-6">
+        <div className="flex flex-col items-center text-center">
+          <div className="relative w-full max-w-[320px] aspect-[1468/1126] flex items-center justify-center mb-6">
               <svg viewBox="0 0 1468 1126" className="absolute inset-0 w-full h-full pointer-events-none">
                  <rect x="23" y="23" width="1422" height="1080" rx="55" stroke="#FEFEFE" strokeWidth="46" fill="transparent" />
               </svg>

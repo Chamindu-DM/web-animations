@@ -82,14 +82,14 @@ export const Card = ({
   return (
     <div
       ref={container}
-      className="h-screen flex items-center justify-center sticky top-0 p-4 md: p-8"
+      className="h-screen flex items-center justify-center sticky top-0 p-4 md:p-8"
     >
       <motion.div
         style={{
           scale,
           top: `calc(-5vh + ${i * 30}px)`,
         }}
-        className={`relative w-full max-w-[1200px] min-h-[480px] md:min-h-[520px] ${card.color} rounded-[32px] border ${card.borderColor} p-8 md:p-12 overflow-hidden flex flex-col justify-between origin-top`}
+        className={`relative w-full max-w-[1200px] min-h-[480px] md:min-h-[520px] ${card.color} rounded-[32px] border ${card.borderColor} p-6 sm:p-8 md:p-12 overflow-hidden flex flex-col justify-between origin-top`}
       >
         {/* Subtle background star grid pattern */}
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff0d_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />

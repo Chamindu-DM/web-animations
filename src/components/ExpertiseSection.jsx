@@ -107,7 +107,7 @@ export function ExpertiseHeroBanner({
   };
 
   return (
-    <div className="self-stretch w-full h-[75vh] px-20 relative bg-red-600 flex flex-col justify-end items-start gap-2 overflow-hidden">
+    <div className="self-stretch w-full h-[60vh] sm:h-[70vh] md:h-[75vh] px-6 sm:px-12 md:px-20 relative bg-red-600 flex flex-col justify-end items-start gap-2 overflow-hidden">
       {/* Background Image - Zoom Out Animation to fill parent container */}
       <motion.img
         initial={{ scale: 1.3 }}
@@ -129,7 +129,7 @@ export function ExpertiseHeroBanner({
           whileInView={{ y: "0%", opacity: 1 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: duration, ease: [0.16, 1, 0.3, 1] }}
-          className="justify-start text-white text-2xl font-normal font-['Inter'] uppercase"
+          className="justify-start text-white text-lg sm:text-xl md:text-2xl font-normal font-['Inter'] uppercase"
         >
           {heroNumber}
         </motion.div>
@@ -141,7 +141,7 @@ export function ExpertiseHeroBanner({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
-        className="flex flex-wrap gap-x-[0.3em] text-white text-8xl font-bold font-['Inter'] uppercase relative z-10 overflow-hidden leading-tight"
+        className="flex flex-wrap gap-x-[0.3em] text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-['Inter'] uppercase relative z-10 overflow-hidden leading-tight break-words"
       >
         {words.map((word, idx) => (
           <span key={idx} className="inline-block overflow-hidden py-1">
@@ -157,13 +157,13 @@ export function ExpertiseHeroBanner({
 
 export function ExpertiseStickyNumber({ number = "01", duration = 1.6 }) {
   return (
-    <div className="sticky top-0 px-4 py-10 flex flex-col justify-start items-start">
+    <div className="lg:sticky top-0 px-2 sm:px-4 py-4 lg:py-10 flex flex-col justify-start items-start">
       <motion.div
         initial={{ opacity: 0, y: 80, filter: 'blur(20px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration, ease: [0.16, 1, 0.3, 1] }}
-        className="justify-start text-white text-[400px] font-regular font-['Instrument_Sans'] leading-none"
+        className="justify-start text-white text-7xl sm:text-9xl md:text-[180px] lg:text-[320px] xl:text-[400px] font-regular font-['Instrument_Sans'] leading-none"
       >
         {number}
       </motion.div>
@@ -177,13 +177,13 @@ export function ExpertiseContentHeader({
   duration = 1.6
 }) {
   return (
-    <div className="self-stretch flex flex-col justify-start items-start gap-6">
+    <div className="self-stretch flex flex-col justify-start items-start gap-4 md:gap-6">
       <motion.div
         initial={{ opacity: 0, y: 50, filter: 'blur(16px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-        className="self-stretch justify-start text-white text-5xl font-bold font-['Inter'] uppercase"
+        className="self-stretch justify-start text-white text-2xl sm:text-4xl md:text-5xl font-bold font-['Inter'] uppercase leading-tight"
       >
         {heading}
       </motion.div>
@@ -192,7 +192,7 @@ export function ExpertiseContentHeader({
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-        className="self-stretch justify-start text-white/80 text-base font-light font-['Inter']"
+        className="self-stretch justify-start text-white/80 text-sm sm:text-base font-light font-['Inter'] leading-relaxed"
       >
         {description}
       </motion.div>
@@ -269,16 +269,16 @@ export function SingleExpertiseSection({
   const [activeIndex, setActiveIndex] = useState(null);
 
   return (
-    <div className="w-full inline-flex flex-col justify-center items-center">
+    <div className="w-full max-w-full flex flex-col justify-center items-center">
       <ExpertiseHeroBanner
         heroNumber={heroNumber}
         heroTitle={heroTitle}
         imageSrc={heroImage}
         duration={duration}
       />
-      <div className="w-full px-20 bg-black flex justify-center items-start gap-2 relative">
+      <div className="w-full max-w-full px-4 sm:px-8 md:px-12 lg:px-20 bg-black flex flex-col lg:flex-row justify-center items-start gap-4 lg:gap-8 relative">
         <ExpertiseStickyNumber number={sectionNumber} duration={duration} />
-        <div className="flex-1 max-w-[1080px] px-4 py-24 inline-flex flex-col justify-start items-start gap-24 overflow-hidden">
+        <div className="flex-1 w-full max-w-[1080px] px-2 sm:px-4 py-8 md:py-16 lg:py-24 flex flex-col justify-start items-start gap-8 md:gap-16 lg:gap-24 overflow-hidden">
           <ExpertiseContentHeader
             heading={heading}
             description={description}

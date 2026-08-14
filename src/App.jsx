@@ -10,12 +10,12 @@ import GlobeSection from "./components/GlobeSection";
 
 export default function App() {
   return (
-    <main className="bg-white min-h-screen">
+    <main className="bg-white min-h-screen w-full max-w-full overflow-x-clip">
       <Navbar/>
       {/* Intro hero section */}
-      <div className="h-[60vh] grid place-items-center text-black">
-        <h1 className="font-luckiest text-4xl md:text-5xl">Scroll down for start animation</h1>
-        <div className="flex flex-col gap-4 p-8">
+      <div className="min-h-[60vh] py-12 flex flex-col justify-center items-center text-black px-4 text-center">
+        <h1 className="font-luckiest text-3xl sm:text-4xl md:text-5xl max-w-2xl">Scroll down for start animation</h1>
+        <div className="flex flex-wrap justify-center gap-4 p-4 md:p-8">
           {/* Default Icon on the right */}
           <Button variant="primary" icon={ArrowRight}>
             Book a free intro
