@@ -6,6 +6,7 @@ import { Button } from "./components/Button";
 import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 import DeviceScrollAnimation from "./components/DeviceScrollAnimation";
 import ExpertiseSection from "./components/ExpertiseSection";
+import GlobeSection from "./components/GlobeSection";
 
 export default function App() {
   return (
@@ -65,6 +66,9 @@ export default function App() {
 
       {/* GSAP Device Scroll Animation */}
       <DeviceScrollAnimation />
+
+      {/* Rotating Globe Section */}
+      <GlobeSection />
 
       {/* Contact Form Section */}
       <ContactSection />
