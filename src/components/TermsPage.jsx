@@ -144,52 +144,45 @@ const termsSections = [
   }
 ];
 
-function TermCard({ section, index, progress, total }) {
-  const targetScale = 1 - (total - index) * 0.025;
-  const scale = useTransform(progress, [index / total, 1], [1, targetScale]);
-
+function TermCard({ section, index, total }) {
   return (
     <div
       id={section.id}
-      className="relative mb-16 sm:mb-24 scroll-mt-16"
+      className="relative mb-16 sm:mb-24 scroll-mt-24 sm:scroll-mt-32"
     >
-      {/* Inner Sticky Container */}
-      <div className="sticky top-12 sm:top-16 flex flex-col justify-start origin-top">
-        <motion.div
-          style={{ scale }}
-          className={`w-full h-[520px] sm:h-[560px] md:h-[580px] ${section.bgColor} ${section.textColor} rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl flex flex-col justify-between border border-black/5 origin-top`}
-        >
-          {/* Card Header */}
-          <div className="border-b border-current/15 pb-4 shrink-0">
-            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
-              {section.num}. {section.title}
-            </h3>
-          </div>
+      <div
+        className={`w-full h-auto ${section.bgColor} ${section.textColor} rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl flex flex-col gap-6 border border-black/5`}
+      >
+        {/* Card Header */}
+        <div className="border-b border-current/15 pb-4">
+          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
+            {section.num}. {section.title}
+          </h3>
+        </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto pr-2 my-4 flex flex-col gap-6 text-[15px] sm:text-base leading-relaxed">
-            {section.subsections.map((sub, sIdx) => (
-              <div key={sIdx} className="flex flex-col gap-2">
-                {sub.title && (
-                  <h4 className="font-bold text-base sm:text-lg opacity-95">
-                    {sub.title}
-                  </h4>
-                )}
-                {sub.content.map((para, pIdx) => (
-                  <p key={pIdx} className="opacity-90 leading-relaxed">
-                    {para}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
+        {/* Content */}
+        <div className="flex flex-col gap-6 text-[15px] sm:text-base leading-relaxed my-2">
+          {section.subsections.map((sub, sIdx) => (
+            <div key={sIdx} className="flex flex-col gap-2">
+              {sub.title && (
+                <h4 className="font-bold text-base sm:text-lg opacity-95">
+                  {sub.title}
+                </h4>
+              )}
+              {sub.content.map((para, pIdx) => (
+                <p key={pIdx} className="opacity-90 leading-relaxed">
+                  {para}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
 
-          {/* Card Footer Indicator */}
-          <div className="pt-3 border-t border-current/10 flex justify-between items-center text-xs font-semibold uppercase tracking-wider opacity-70 shrink-0">
-            <span>HungerLink Terms</span>
-            <span>Section 0{section.num} / 0{total}</span>
-          </div>
-        </motion.div>
+        {/* Card Footer Indicator */}
+        <div className="pt-4 border-t border-current/10 flex justify-between items-center text-xs font-semibold uppercase tracking-wider opacity-70">
+          <span>HungerLink Terms</span>
+          <span>Section 0{section.num} / 0{total}</span>
+        </div>
       </div>
     </div>
   );
@@ -201,12 +194,11 @@ export default function TermsPage() {
   const [activeSection, setActiveSection] = useState("section-1");
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
-  const containerRef = useRef(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  // Scroll to top when the component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const scrollToSection = (id) => {
     setActiveSection(id);
@@ -348,7 +340,6 @@ export default function TermsPage() {
 
         {/* Right Main Stacking Card Area */}
         <main
-          ref={containerRef}
           className="w-full lg:w-[62%] xl:w-[68%] p-6 sm:p-12 lg:p-14 flex flex-col gap-8 relative"
         >
           {/* Header Title Section */}
@@ -374,7 +365,6 @@ export default function TermsPage() {
                 key={section.id}
                 section={section}
                 index={index}
-                progress={scrollYProgress}
                 total={termsSections.length}
               />
             ))}
