@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronsUpDown } from "lucide-react";
 import hungerLinkLogo from "../assets/HungerLink_Logo.svg";
-
 const termsSections = [
   {
     id: "section-1",
@@ -199,6 +199,8 @@ function TermCard({ section, index, progress, total }) {
 
 export default function TermsPage() {
   const [activeSection, setActiveSection] = useState("section-1");
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -206,13 +208,19 @@ export default function TermsPage() {
     offset: ["start start", "end end"],
   });
 
-    const scrollToSection = (id) => {
+  const scrollToSection = (id) => {
     setActiveSection(id);
+    setIsMobileDropdownOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      const topOffset = -48; // sticky top padding
+      // Use 64px for sm:top-16 (desktop) and 48px for top-12 (mobile)
+      // Actually, now that we have a mobile sticky header, the sticky top padding on mobile might need to account for it!
+      // The sticky header height is roughly: 73px (logo padding) + 72px (dropdown padding) = ~145px
+      const isDesktop = window.innerWidth >= 640;
+      const topOffset = isDesktop ? -64 : -145;
+
       const y = element.getBoundingClientRect().top + window.scrollY + topOffset;
-      
+
       window.scrollTo({
         top: Math.max(0, y),
         behavior: "smooth"
@@ -222,11 +230,21 @@ export default function TermsPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
+      const scrollY = window.scrollY;
+      const scrollPosition = scrollY + 200;
+      
+      // Show sticky header after scrolling past the inline logo (approx 150px)
+      if (scrollY > 150) {
+        setShowStickyHeader(true);
+      } else {
+        setShowStickyHeader(false);
+        setIsMobileDropdownOpen(false);
+      }
+
       for (let i = termsSections.length - 1; i >= 0; i--) {
         const section = document.getElementById(termsSections[i].id);
         if (section) {
-          const top = section.getBoundingClientRect().top + window.scrollY;
+          const top = section.getBoundingClientRect().top + scrollY;
           if (scrollPosition >= top) {
             setActiveSection(termsSections[i].id);
             break;
@@ -239,9 +257,61 @@ export default function TermsPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   return (
     <div className="bg-white min-h-screen text-black font-['Inter',sans-serif] selection:bg-amber-200">
+      
+      {/* Mobile Sticky Header (Visible on Scroll) */}
+      <div 
+        className={`fixed top-0 left-0 right-0 z-[60] bg-white border-b border-black/10 flex flex-col lg:hidden transition-transform duration-300 ${
+          showStickyHeader ? "translate-y-0 shadow-md" : "-translate-y-full"
+        }`}
+      >
+        <div className="p-6 border-b border-black/10 flex items-center">
+          <img src={hungerLinkLogo} alt="HungerLink Logo" className="h-7 w-auto object-contain" />
+        </div>
+        
+        <div className="relative">
+          <button 
+            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+            className="w-full flex items-center justify-between p-5 text-sm sm:text-base font-medium text-black hover:bg-black/5 transition-colors"
+          >
+            <span>
+              {termsSections.find(s => s.id === activeSection)?.num}.{" "}
+              {termsSections.find(s => s.id === activeSection)?.title}
+            </span>
+            <ChevronsUpDown className="w-5 h-5 text-neutral-500 shrink-0 ml-4" />
+          </button>
+          
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {isMobileDropdownOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 bg-[#f5f5f5] border-b border-black/10 shadow-2xl max-h-[60vh] overflow-y-auto z-[60]"
+              >
+                <nav className="flex flex-col">
+                  {termsSections.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      className={`text-left text-sm p-4 transition-all duration-150 leading-snug cursor-pointer border-b border-black/5 last:border-0 ${
+                        activeSection === item.id
+                          ? "font-bold text-black bg-black/5"
+                          : "font-normal text-neutral-600 hover:text-black hover:bg-black/5"
+                      }`}
+                    >
+                      {item.num}. {item.title}
+                    </button>
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
       <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row min-h-screen">
         {/* Left Sidebar: Logo & Interactive Table of Contents */}
         <aside className="w-full lg:w-[38%] xl:w-[32%] lg:sticky lg:top-0 lg:h-screen flex flex-col justify-between p-8 sm:p-12 lg:p-14 border-b lg:border-b-0 lg:border-r border-black/10 bg-white z-30">
@@ -264,11 +334,10 @@ export default function TermsPage() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`text-left text-sm sm:text-base transition-all duration-150 leading-snug cursor-pointer ${
-                    activeSection === item.id
+                  className={`text-left text-sm sm:text-base transition-all duration-150 leading-snug cursor-pointer ${activeSection === item.id
                       ? "font-bold text-black translate-x-1"
                       : "font-normal text-neutral-500 hover:text-black hover:translate-x-0.5"
-                  }`}
+                    }`}
                 >
                   {item.num}. {item.title}
                 </button>
