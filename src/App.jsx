@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import FeaturesSection from "./components/FeaturesSection";
 import CardStackSection from "./components/CardStackSection";
 import Navbar from "./components/Navbar";
@@ -7,8 +8,9 @@ import { ArrowRight, Calendar, Download, Plus, Trash2 } from "lucide-react";
 import DeviceScrollAnimation from "./components/DeviceScrollAnimation";
 import ExpertiseSection from "./components/ExpertiseSection";
 import GlobeSection from "./components/GlobeSection";
+import TermsPage from "./components/TermsPage";
 
-export default function App() {
+function HomePage() {
   return (
     <main className="bg-white min-h-screen w-full max-w-full overflow-x-clip">
       <Navbar/>
@@ -74,9 +76,25 @@ export default function App() {
       <ContactSection />
 
       {/* Footer section */}
-      <div className="h-[60vh] grid place-items-center bg-slate-950 text-white">
-        <h2 className="font-luckiest text-3xl md:text-4xl">End</h2>
-      </div>
+      <footer>
+        <Link
+          to="/terms"
+          className="text-neutral-400 hover:text-white underline text-sm transition-colors"
+        >
+          Terms of Use
+        </Link>
+      </footer>
     </main>
   );
+}
+
+export default function App(){
+  return(
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage/>} />
+        <Route path="/terms" element={<TermsPage/>} />
+      </Routes>
+    </Router>
+  )
 }
