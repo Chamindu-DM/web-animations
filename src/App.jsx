@@ -76,10 +76,10 @@ function HomePage() {
       <ContactSection />
 
       {/* Footer section */}
-      <footer>
-        <Link
-          to="/terms"
-          className="text-neutral-400 hover:text-white underline text-sm transition-colors"
+      <footer className="h-[60vh] flex flex-col justify-center items-center gap-4 bg-slate-950 text-white">
+        <Link 
+          to="/terms" 
+          className="font-luckiest text-white hover:text-amber-400 underline text-3xl transition-colors"
         >
           Terms of Use
         </Link>
