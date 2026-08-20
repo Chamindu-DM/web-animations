@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import hungerLinkLogo from "../assets/HungerLink_Logo.svg";
+
 const termsSections = [
   {
     id: "section-1",
@@ -144,232 +145,193 @@ const termsSections = [
   }
 ];
 
-function TermCard({ section, index, total }) {
-  return (
-    <div
-      id={section.id}
-      className="relative mb-16 sm:mb-24 scroll-mt-24 sm:scroll-mt-32"
-    >
-      <div
-        className={`w-full h-auto ${section.bgColor} ${section.textColor} rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl flex flex-col gap-6 border border-black/5`}
-      >
-        {/* Card Header */}
-        <div className="border-b border-current/15 pb-4">
-          <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
-            {section.num}. {section.title}
-          </h3>
-        </div>
-
-        {/* Content */}
-        <div className="flex flex-col gap-6 text-[15px] sm:text-base leading-relaxed my-2">
-          {section.subsections.map((sub, sIdx) => (
-            <div key={sIdx} className="flex flex-col gap-2">
-              {sub.title && (
-                <h4 className="font-bold text-base sm:text-lg opacity-95">
-                  {sub.title}
-                </h4>
-              )}
-              {sub.content.map((para, pIdx) => (
-                <p key={pIdx} className="opacity-90 leading-relaxed">
-                  {para}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Card Footer Indicator */}
-        <div className="pt-4 border-t border-current/10 flex justify-between items-center text-xs font-semibold uppercase tracking-wider opacity-70">
-          <span>HungerLink Terms</span>
-          <span>Section 0{section.num} / 0{total}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-
 export default function TermsPage() {
   const [activeSection, setActiveSection] = useState("section-1");
-  const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Scroll to top when the component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // IntersectionObserver to accurately track active section on scroll
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "-25% 0px -45% 0px",
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    termsSections.forEach((section) => {
+      const el = document.getElementById(section.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const scrollToSection = (id) => {
     setActiveSection(id);
-    setIsMobileDropdownOpen(false);
+    setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
-      // Use 64px for sm:top-16 (desktop) and 48px for top-12 (mobile)
-      // Actually, now that we have a mobile sticky header, the sticky top padding on mobile might need to account for it!
-      // The sticky header height is roughly: 73px (logo padding) + 72px (dropdown padding) = ~145px
-      const isDesktop = window.innerWidth >= 640;
-      const topOffset = isDesktop ? -64 : -145;
-
-      const y = element.getBoundingClientRect().top + window.scrollY + topOffset;
-
-      window.scrollTo({
-        top: Math.max(0, y),
-        behavior: "smooth"
-      });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const scrollPosition = scrollY + 200;
-      
-      // Show sticky header after scrolling past the inline logo (approx 150px)
-      if (scrollY > 150) {
-        setShowStickyHeader(true);
-      } else {
-        setShowStickyHeader(false);
-        setIsMobileDropdownOpen(false);
-      }
-
-      for (let i = termsSections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(termsSections[i].id);
-        if (section) {
-          const top = section.getBoundingClientRect().top + scrollY;
-          if (scrollPosition >= top) {
-            setActiveSection(termsSections[i].id);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <div className="bg-white min-h-screen text-black font-['Inter',sans-serif] selection:bg-amber-200">
-      
-      {/* Mobile Sticky Header (Visible on Scroll) */}
-      <div 
-        className={`fixed top-0 left-0 right-0 z-[60] bg-white border-b border-black/10 flex flex-col lg:hidden transition-transform duration-300 ${
-          showStickyHeader ? "translate-y-0 shadow-md" : "-translate-y-full"
-        }`}
+    <div className="bg-[#141210] min-h-screen text-white font-['Inter',sans-serif] selection:bg-amber-400 selection:text-black">
+      {/* Fixed Top-Right Return Button (matching the - PORTFOLIO style in shaunscholtz.com) */}
+      <Link
+        to="/"
+        className="fixed top-6 right-6 lg:top-8 lg:right-8 z-50 px-5 py-2 rounded-full border border-white/20 text-[11px] sm:text-xs font-mono uppercase tracking-widest bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 shadow-lg group"
       >
-        <div className="p-6 border-b border-black/10 flex items-center">
-          <img src={hungerLinkLogo} alt="HungerLink Logo" className="h-7 w-auto object-contain" />
-        </div>
-        
-        <div className="relative">
-          <button 
-            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-            className="w-full flex items-center justify-between p-5 text-sm sm:text-base font-medium text-black hover:bg-black/5 transition-colors"
-          >
-            <span>
-              {termsSections.find(s => s.id === activeSection)?.num}.{" "}
-              {termsSections.find(s => s.id === activeSection)?.title}
-            </span>
-            <ChevronsUpDown className="w-5 h-5 text-neutral-500 shrink-0 ml-4" />
-          </button>
-          
-          {/* Dropdown Menu */}
-          <AnimatePresence>
-            {isMobileDropdownOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-                className="absolute top-full left-0 right-0 bg-[#f5f5f5] border-b border-black/10 shadow-2xl max-h-[60vh] overflow-y-auto z-[60]"
-              >
-                <nav className="flex flex-col">
-                  {termsSections.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`text-left text-sm p-4 transition-all duration-150 leading-snug cursor-pointer border-b border-black/5 last:border-0 ${
-                        activeSection === item.id
-                          ? "font-bold text-black bg-black/5"
-                          : "font-normal text-neutral-600 hover:text-black hover:bg-black/5"
-                      }`}
-                    >
-                      {item.num}. {item.title}
-                    </button>
-                  ))}
-                </nav>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-      <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row min-h-screen">
-        {/* Left Sidebar: Logo & Interactive Table of Contents */}
-        <aside className="w-full lg:w-[38%] xl:w-[32%] lg:sticky lg:top-0 lg:h-screen flex flex-col justify-between p-8 sm:p-12 lg:p-14 border-b lg:border-b-0 lg:border-r border-black/10 bg-white z-30">
-          <div className="flex items-center">
-            <img
-              src={hungerLinkLogo}
-              alt="HungerLink Logo"
-              className="h-8 sm:h-9 w-auto object-contain"
-            />
-          </div>
+        <span className="transition-transform group-hover:-translate-x-1">←</span>
+        <span>Home</span>
+      </Link>
 
-          <div className="mt-10 lg:mt-auto pt-6">
-            <div className="border-b border-black/15 pb-3 mb-4">
-              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-black">
-                Table of contents
-              </h3>
-            </div>
-            <nav className="flex flex-col gap-3">
-              {termsSections.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`text-left text-sm sm:text-base transition-all duration-150 leading-snug cursor-pointer ${activeSection === item.id
-                      ? "font-bold text-black translate-x-1"
-                      : "font-normal text-neutral-500 hover:text-black hover:translate-x-0.5"
-                    }`}
-                >
-                  {item.num}. {item.title}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* Right Main Stacking Card Area */}
-        <main
-          className="w-full lg:w-[62%] xl:w-[68%] p-6 sm:p-12 lg:p-14 flex flex-col gap-8 relative"
+      {/* Mobile Top Navigation Bar */}
+      <div className="lg:hidden sticky top-0 z-40 bg-[#141210]/95 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between">
+        <Link to="/">
+          <img
+            src={hungerLinkLogo}
+            alt="HungerLink Logo"
+            className="h-6 w-auto object-contain brightness-0 invert"
+          />
+        </Link>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
         >
-          {/* Header Title Section */}
-          <div className="flex flex-col gap-2 pb-4">
-            <h1 className="text-5xl sm:text-7xl lg:text-[80px] font-black uppercase tracking-tight leading-[0.95] text-black">
-              Terms of use
-            </h1>
-            <p className="text-sm sm:text-base font-semibold uppercase tracking-wider text-neutral-600 mt-2">
-              Effective date: February 22, 2022
+          <span>{termsSections.find((s) => s.id === activeSection)?.num}. {termsSections.find((s) => s.id === activeSection)?.title}</span>
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMobileMenuOpen ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+
+      {/* Mobile TOC Dropdown Drawer */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-x-0 top-[65px] z-40 bg-[#141210] border-b border-white/10 p-6 flex flex-col gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+            Table of contents
+          </span>
+          {termsSections.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollToSection(item.id)}
+              className={`text-left text-xs font-mono py-2 transition-colors flex items-center justify-between ${
+                activeSection === item.id
+                  ? "text-amber-400 font-bold"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <span>{item.num.padStart(2, "0")}. {item.title}</span>
+              {activeSection === item.id && <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400">Active</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Main Two-Column Layout */}
+      <div className="flex flex-col lg:flex-row w-full min-h-screen">
+        {/* Left Column (w-1/2, Sticky on desktop) */}
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-0 lg:h-screen bg-[#141210] flex flex-col justify-between p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-white/10 z-30">
+          {/* Top Left: Logo & Subtitle */}
+          <div className="flex flex-col gap-3">
+            <Link to="/" className="inline-block">
+              <img
+                src={hungerLinkLogo}
+                alt="HungerLink Logo"
+                className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
+              />
+            </Link>
+            <p className="font-mono text-[11px] text-neutral-400 uppercase tracking-widest max-w-xs leading-relaxed">
+              TERMS OF USE & SERVICE AGREEMENT
             </p>
           </div>
 
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-black mb-6">
-              Terms
-            </h2>
-          </div>
+          {/* Bottom Row of Left Column */}
+          <div className="mt-12 lg:mt-auto pt-6 flex flex-col sm:flex-row lg:flex-row items-start sm:items-end lg:items-end justify-between gap-8">
+            {/* Bottom-Left: Canadian Non-Profit Tag */}
+            <div className="font-mono text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>HUNGERLINK © 2026</span>
+            </div>
 
-          {/* Stacking Terms Cards */}
-          <div className="flex flex-col w-full pb-32">
-            {termsSections.map((section, index) => (
-              <TermCard
-                key={section.id}
-                section={section}
-                index={index}
-                total={termsSections.length}
-              />
-            ))}
+            {/* Bottom-Right of Left Column: Scaled Down Table of Contents */}
+            <div className="hidden lg:flex flex-col items-end text-right gap-1.5 max-w-xs">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-2 ml-4 block">
+                Table of contents
+              </span>
+              <nav className="flex flex-col items-end gap-1.5">
+                {termsSections.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`text-right text-[11px] xl:text-xs font-mono transition-all duration-200 cursor-pointer flex items-center gap-2 group ${
+                      activeSection === item.id
+                        ? "text-white font-bold translate-x-0 opacity-100"
+                        : "text-neutral-500 hover:text-neutral-300 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <span>
+                      {item.num.padStart(2, "0")}. {item.title}
+                    </span>
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                        activeSection === item.id
+                          ? "bg-amber-400 scale-100"
+                          : "bg-transparent scale-0 group-hover:bg-white/40 group-hover:scale-75"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </nav>
+            </div>
           </div>
-        </main>
+        </div>
+
+        {/* Right Column (w-1/2, Full viewport height per term) */}
+        <div className="w-full lg:w-1/2 flex flex-col">
+          {termsSections.map((section) => (
+            <section
+              key={section.id}
+              id={section.id}
+              className={`w-full min-h-screen flex flex-col justify-center p-8 sm:p-14 lg:p-16 xl:p-20 relative ${section.bgColor} ${section.textColor}`}
+            >
+
+              {/* Big Term Title (Shaun Scholtz style) */}
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.02] mb-8 max-w-2xl">
+                {section.num}. {section.title}
+              </h2>
+
+              {/* Monospace Small Font for Term Description */}
+              <div className="font-mono text-xs sm:text-[13px] leading-relaxed space-y-5 max-w-xl opacity-90">
+                {section.subsections.map((sub, sIdx) => (
+                  <div key={sIdx} className="space-y-2">
+                    {sub.title && (
+                      <h4 className="font-bold text-xs uppercase tracking-wider opacity-95 pt-1">
+                        {sub.title}
+                      </h4>
+                    )}
+                    {sub.content.map((para, pIdx) => (
+                      <p key={pIdx} className="leading-relaxed opacity-85">
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );
