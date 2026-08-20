@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronsUpDown, ArrowLeft } from "lucide-react";
 import hungerLinkLogo from "../assets/HungerLink_Logo.svg";
 
 const termsSections = [
@@ -147,11 +148,48 @@ const termsSections = [
 
 export default function TermsPage() {
   const [activeSection, setActiveSection] = useState("section-1");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Scroll to top when the component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Close mobile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsMobileDropdownOpen(false);
+      }
+    };
+
+    if (isMobileDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMobileDropdownOpen]);
+
+  // Scroll listener to toggle mobile sticky header on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      if (scrollY > 180) {
+        setShowStickyHeader(true);
+      } else {
+        setShowStickyHeader(false);
+        setIsMobileDropdownOpen(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // IntersectionObserver to accurately track active section on scroll
@@ -180,7 +218,7 @@ export default function TermsPage() {
 
   const scrollToSection = (id) => {
     setActiveSection(id);
-    setIsMobileMenuOpen(false);
+    setIsMobileDropdownOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -189,84 +227,163 @@ export default function TermsPage() {
 
   return (
     <div className="bg-[#141210] min-h-screen text-white font-['Inter',sans-serif] selection:bg-amber-400 selection:text-black">
-      {/* Fixed Top-Right Return Button (matching the - PORTFOLIO style in shaunscholtz.com) */}
+      {/* Fixed Top-Right Return Button (Desktop Only) */}
       <Link
         to="/"
-        className="fixed top-6 right-6 lg:top-8 lg:right-8 z-50 px-5 py-2 rounded-full border border-white/20 text-[11px] sm:text-xs font-mono uppercase tracking-widest bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 flex items-center gap-1.5 shadow-lg group"
+        className="hidden lg:flex fixed lg:top-8 lg:right-8 z-50 px-5 py-2 rounded-full border border-white/20 text-[11px] sm:text-xs font-mono uppercase tracking-widest bg-black/40 hover:bg-white hover:text-black backdrop-blur-md transition-all duration-300 items-center gap-1.5 shadow-lg group"
       >
-        <span className="transition-transform group-hover:-translate-x-1">←</span>
+        <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-1" />
         <span>Home</span>
       </Link>
 
-      {/* Mobile Top Navigation Bar */}
-      <div className="lg:hidden sticky top-0 z-40 bg-[#141210]/95 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <Link to="/">
-          <img
-            src={hungerLinkLogo}
-            alt="HungerLink Logo"
-            className="h-6 w-auto object-contain brightness-0 invert"
+      {/* Backdrop overlay for outside click on mobile */}
+      <AnimatePresence>
+        {isMobileDropdownOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileDropdownOpen(false)}
+            className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           />
-        </Link>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
-        >
-          <span>{termsSections.find((s) => s.id === activeSection)?.num}. {termsSections.find((s) => s.id === activeSection)?.title}</span>
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isMobileMenuOpen ? "rotate-180" : ""}`} />
-        </button>
-      </div>
+        )}
+      </AnimatePresence>
 
-      {/* Mobile TOC Dropdown Drawer */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[65px] z-40 bg-[#141210] border-b border-white/10 p-6 flex flex-col gap-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
-            Table of contents
-          </span>
-          {termsSections.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => scrollToSection(item.id)}
-              className={`text-left text-xs font-mono py-2 transition-colors flex items-center justify-between ${
-                activeSection === item.id
-                  ? "text-amber-400 font-bold"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              <span>{item.num.padStart(2, "0")}. {item.title}</span>
-              {activeSection === item.id && <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400">Active</span>}
-            </button>
-          ))}
+      {/* Mobile Sticky Header (Visible on Scroll on mobile screens) */}
+      <div
+        ref={dropdownRef}
+        className={`fixed top-0 left-0 right-0 z-50 bg-[#141210]/95 backdrop-blur-md border-b border-white/10 flex flex-col lg:hidden transition-transform duration-300 ${
+          showStickyHeader ? "translate-y-0 shadow-2xl" : "-translate-y-full"
+        }`}
+      >
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <img
+              src={hungerLinkLogo}
+              alt="HungerLink Logo"
+              className="h-6 w-auto object-contain brightness-0 invert"
+            />
+          </Link>
+          <Link
+            to="/"
+            className="px-3.5 py-1 rounded-full border border-white/20 text-[10px] font-mono uppercase tracking-widest bg-white/5 hover:bg-white hover:text-black text-neutral-300 transition-all flex items-center gap-1"
+          >
+            <ArrowLeft size={12} className="transition-transform group-hover:-translate-x-1" />
+            <span>Home</span>
+          </Link>
         </div>
-      )}
+
+        <div className="relative">
+          <button
+            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+            className="w-full flex items-center justify-between px-6 py-3.5 text-xs font-mono uppercase tracking-wider text-neutral-200 hover:bg-white/5 transition-colors"
+          >
+            <span className="truncate pr-2">
+              {termsSections.find((s) => s.id === activeSection)?.num}.{" "}
+              {termsSections.find((s) => s.id === activeSection)?.title}
+            </span>
+            <ChevronsUpDown className="w-4 h-4 text-neutral-400 shrink-0" />
+          </button>
+
+          {/* Dropdown Menu */}
+          <AnimatePresence>
+            {isMobileDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 right-0 bg-[#141210] border-b border-white/10 shadow-2xl max-h-[60vh] overflow-y-auto z-50"
+              >
+                <nav className="flex flex-col p-2">
+                  {termsSections.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)}
+                      className={`text-left text-xs font-mono p-3 transition-all leading-snug cursor-pointer rounded-lg flex items-center justify-between ${
+                        activeSection === item.id
+                          ? "font-bold text-white bg-white/10"
+                          : "font-normal text-neutral-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <span>
+                        {item.num.padStart(2, "0")}. {item.title}
+                      </span>
+                      {activeSection === item.id && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      )}
+                    </button>
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
       {/* Main Two-Column Layout */}
       <div className="flex flex-col lg:flex-row w-full min-h-screen">
-        {/* Left Column (w-1/2, Sticky on desktop) */}
-        <div className="w-full lg:w-1/2 lg:sticky lg:top-0 lg:h-screen bg-[#141210] flex flex-col justify-between p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-white/10 z-30">
-          {/* Top Left: Logo & Subtitle */}
-          <div className="flex flex-col gap-3">
-            <Link to="/" className="inline-block">
-              <img
-                src={hungerLinkLogo}
-                alt="HungerLink Logo"
-                className="h-8 sm:h-9 w-auto object-contain brightness-0 invert"
-              />
+        {/* Left Column (w-full on mobile, w-1/2 sticky on desktop) */}
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-0 lg:h-screen bg-[#141210] flex flex-col justify-between p-6 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-white/10 z-30">
+          {/* Top Row: Logo & Subtitle aligned horizontally with Home button */}
+          <div className="flex items-center justify-between gap-4 w-full">
+            <div className="flex flex-col gap-2">
+              <Link to="/" className="inline-block">
+                <img
+                  src={hungerLinkLogo}
+                  alt="HungerLink Logo"
+                  className="h-7 sm:h-9 w-auto object-contain brightness-0 invert"
+                />
+              </Link>
+              <p className="font-mono text-[10px] sm:text-[11px] text-neutral-400 uppercase tracking-widest leading-relaxed">
+                TERMS OF USE & SERVICE AGREEMENT
+              </p>
+            </div>
+
+            {/* Mobile Home button aligned horizontally */}
+            <Link
+              to="/"
+              className="lg:hidden px-3.5 py-1.5 rounded-full border border-white/20 text-[10px] font-mono uppercase tracking-widest bg-white/5 hover:bg-white hover:text-black text-neutral-200 transition-all flex items-center gap-1 shrink-0 mt-0.5"
+            >
+              <ArrowLeft size={12} className="transition-transform group-hover:-translate-x-1" />
+              <span>Home</span>
             </Link>
-            <p className="font-mono text-[11px] text-neutral-400 uppercase tracking-widest max-w-xs leading-relaxed">
-              TERMS OF USE & SERVICE AGREEMENT
-            </p>
           </div>
 
-          {/* Bottom Row of Left Column */}
-          <div className="mt-12 lg:mt-auto pt-6 flex flex-col sm:flex-row lg:flex-row items-start sm:items-end lg:items-end justify-between gap-8">
-            {/* Bottom-Left: Canadian Non-Profit Tag */}
+          {/* Mobile Table of Contents (Initial Inline View - Wireframe 11) */}
+          <div className="lg:hidden my-8 pt-6 border-t border-white/10">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-3 block">
+              Table of contents
+            </span>
+            <nav className="flex flex-col gap-2.5">
+              {termsSections.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`text-left text-xs font-mono py-1.5 transition-colors flex items-center justify-between ${
+                    activeSection === item.id
+                      ? "text-amber-400 font-bold"
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <span>
+                    {item.num.padStart(2, "0")}. {item.title}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Bottom Row of Left Column (Desktop Only) */}
+          <div className="hidden lg:flex mt-auto pt-6 items-end justify-between gap-8">
+            {/* Bottom-Left: Canadian Non-Profit Tag (Desktop) */}
             <div className="font-mono text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>HUNGERLINK © 2026</span>
             </div>
 
-            {/* Bottom-Right of Left Column: Scaled Down Table of Contents */}
-            <div className="hidden lg:flex flex-col items-end text-right gap-1.5 max-w-xs">
+            {/* Bottom-Right of Left Column: Scaled Down Table of Contents (Desktop) */}
+            <div className="flex flex-col items-end text-right gap-1.5 max-w-xs">
               <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-2 ml-4 block">
                 Table of contents
               </span>
@@ -306,7 +423,6 @@ export default function TermsPage() {
               id={section.id}
               className={`w-full min-h-screen flex flex-col justify-center p-8 sm:p-14 lg:p-16 xl:p-20 relative ${section.bgColor} ${section.textColor}`}
             >
-
               {/* Big Term Title (Shaun Scholtz style) */}
               <h2 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.02] mb-8 max-w-2xl">
                 {section.num}. {section.title}
@@ -331,6 +447,17 @@ export default function TermsPage() {
               </div>
             </section>
           ))}
+
+          {/* Dedicated Mobile Footer (At the very bottom of the page on mobile) */}
+          <footer className="lg:hidden w-full bg-[#141210] text-white py-14 px-8 border-t border-white/10 flex flex-col items-center justify-center gap-3">
+            <div className="font-mono text-xs text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>HUNGERLINK © 2026</span>
+            </div>
+            <p className="font-mono text-[10px] text-neutral-600 uppercase tracking-widest text-center">
+              Terms of Use & Service Agreement
+            </p>
+          </footer>
         </div>
       </div>
     </div>
